@@ -1,0 +1,60 @@
+{
+  "name": "agrosaarthi-backend",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AgroSaarthi AI backend: modular-monolith Express API (crop image analysis, agricultural assistant, voice, telephony, expert case management).",
+  "license": "UNLICENSED",
+  "type": "module",
+  "engines": {
+    "node": ">=20.19.0 <25"
+  },
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "tsx watch --clear-screen=false src/server.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node dist/server.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "db:indexes": "tsx src/scripts/sync-indexes.ts",
+    "db:seed": "tsx src/scripts/seed.ts",
+    "admin:create": "tsx src/scripts/create-admin.ts",
+    "knowledge:ingest": "tsx src/scripts/ingest-knowledge.ts",
+    "openapi:generate": "tsx src/scripts/generate-openapi.ts",
+    "audit:deps": "npm audit --omit=dev --audit-level=high"
+  },
+  "dependencies": {
+    "@node-rs/argon2": "2.2.2",
+    "cookie-parser": "1.4.7",
+    "cors": "2.8.6",
+    "express": "5.3.0",
+    "express-rate-limit": "8.7.1",
+    "helmet": "8.3.0",
+    "jose": "6.2.13",
+    "mongoose": "8.24.6",
+    "multer": "2.4.0",
+    "pino": "10.4.0",
+    "sharp": "0.35.5",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@types/cookie-parser": "1.4.10",
+    "@types/cors": "2.8.19",
+    "@types/express": "5.0.6",
+    "@types/multer": "2.3.0",
+    "@types/node": "20.19.43",
+    "@types/supertest": "7.2.1",
+    "@vitest/coverage-v8": "4.1.12",
+    "eslint": "10.13.0",
+    "mongodb-memory-server": "11.3.0",
+    "pino-pretty": "13.2.0",
+    "supertest": "7.3.1",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.72.0",
+    "vitest": "4.1.12"
+  }
+}
