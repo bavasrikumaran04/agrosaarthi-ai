@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import type { Express } from 'express';
-import { createApp } from './app.js';
+import { createApp, type MountedRouter } from './app.js';
 import type { AppConfig } from './config/index.js';
 import { createCoreContainer, type CoreContainer } from './container.js';
 import type { Logger } from './lib/logger.js';
@@ -40,11 +40,21 @@ export interface BuiltApplication {
   onShutdown: () => Promise<void>;
 }
 
+/**
+ * Hooks used by module tests to mount routers under development on the full
+ * middleware stack before they are wired into the production composition below.
+ */
+export interface ExtraMounts {
+  routes?: (core: CoreContainer) => MountedRouter[];
+  webhooks?: (core: CoreContainer) => MountedRouter[];
+}
+
 /** Compose services and routers into the Express application (database must already be connected). */
 export async function buildApplication(
   config: AppConfig,
   logger: Logger,
   overrides: Partial<CoreContainer> = {},
+  extra: ExtraMounts = {},
 ): Promise<BuiltApplication> {
   const core = createCoreContainer(config, logger, overrides);
   await core.languages.ensureBaseline();
@@ -58,7 +68,11 @@ export async function buildApplication(
     unthrottled: [
       { path: '/api/health', router: createHealthRouter({ version: readAppVersion(), startedAt: new Date(), providers }) },
     ],
-    routes: [{ path: AUTH_BASE_PATH, router: createAuthRouter({ config, auth: core.authMiddleware, service: core.authService }) }],
+    webhooks: [...(extra.webhooks?.(core) ?? [])],
+    routes: [
+      { path: AUTH_BASE_PATH, router: createAuthRouter({ config, auth: core.authMiddleware, service: core.authService }) },
+      ...(extra.routes?.(core) ?? []),
+    ],
   });
 
   return { app, core, onShutdown: async () => {} };
