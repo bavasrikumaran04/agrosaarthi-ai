@@ -68,3 +68,6 @@ desktop.ini
 .idea/
 .vscode/*
 !.vscode/extensions.json
+
+# Local development MongoDB data (npm run dev:mongo)
+backend/.dev-mongo-data/

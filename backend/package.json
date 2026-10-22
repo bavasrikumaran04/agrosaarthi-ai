@@ -23,7 +23,8 @@
     "admin:create": "tsx src/scripts/create-admin.ts",
     "knowledge:ingest": "tsx src/scripts/ingest-knowledge.ts",
     "openapi:generate": "tsx src/scripts/generate-openapi.ts",
-    "audit:deps": "npm audit --omit=dev --audit-level=high"
+    "audit:deps": "npm audit --omit=dev --audit-level=high",
+    "dev:mongo": "tsx src/scripts/dev-mongo.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1155.0",

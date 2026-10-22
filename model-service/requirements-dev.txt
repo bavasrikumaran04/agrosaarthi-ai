@@ -1,0 +1,5 @@
+# Test-only dependencies (onnx is used to build a tiny TEST FIXTURE model; it is not needed at runtime).
+-r requirements.txt
+pytest==9.1.1
+httpx2==2.16.0
+onnx==1.23.2
