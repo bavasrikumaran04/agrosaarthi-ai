@@ -5,25 +5,42 @@ import { ApiClient } from '../../core/api';
 import { I18nService, TranslatePipe } from '../../core/i18n/i18n';
 import type { Analysis, Crop } from '../../core/models';
 import { AnalysisResultComponent } from './analysis-result';
+import { Icon } from '../../shared/icon';
+
 
 const MAX_BYTES = 8 * 1024 * 1024;
 const TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 @Component({
   selector: 'app-analyze',
-  imports: [ReactiveFormsModule, TranslatePipe, AnalysisResultComponent],
+  imports: [ReactiveFormsModule, TranslatePipe, AnalysisResultComponent, Icon],
   template: `
     <section class="stack narrow">
-      <h1>{{ 'analyze.title' | t }}</h1>
+      <div>
+        <span class="eyebrow"><app-icon name="camera" [size]="18" /> {{ 'analyze.eyebrow' | t }}</span>
+        <h1>{{ 'analyze.title' | t }}</h1>
+      </div>
       @if (!result()) {
-        <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="stack">
+        <ul class="mini-steps small">
+          <li><app-icon name="sun" [size]="18" /> {{ 'analyze.tip1' | t }}</li>
+          <li><app-icon name="leaf" [size]="18" /> {{ 'analyze.tip2' | t }}</li>
+          <li><app-icon name="check" [size]="18" /> {{ 'analyze.tip3' | t }}</li>
+        </ul>
+        <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="stack form-card">
           <div class="field">
-            <span class="hint" id="photo-hint">{{ 'analyze.photoHint' | t }}</span>
-            <label class="btn btn-big btn-block" for="photo">📷 {{ 'analyze.choosePhoto' | t }}</label>
+            <label class="dropzone" for="photo" [class.has-file]="previewUrl()">
+              @if (previewUrl()) {
+                <img [src]="previewUrl()" [alt]="'analyze.preview' | t" class="preview" />
+                <span class="btn btn-sm"><app-icon name="camera" [size]="18" /> {{ 'analyze.changePhoto' | t }}</span>
+              } @else {
+                <span class="icon-chip lg"><app-icon name="upload" [size]="28" /></span>
+                <strong>{{ 'analyze.choosePhoto' | t }}</strong>
+              }
+              <span class="hint" id="photo-hint">{{ 'analyze.photoHint' | t }}</span>
+            </label>
             <input id="photo" class="visually-hidden" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" aria-describedby="photo-hint" (change)="onFile($event)" />
             @if (fileError()) {<span class="error" role="alert">{{ fileError() }}</span>}
           </div>
-          @if (previewUrl()) {<img [src]="previewUrl()" [alt]="'analyze.preview' | t" class="preview" />}
           <div class="field">
             <label for="crop">{{ 'analyze.cropLabel' | t }}</label>
             <select id="crop" formControlName="cropKey">
@@ -46,15 +63,25 @@ const TYPES = ['image/jpeg', 'image/png', 'image/webp'];
               <p role="status"><span class="spinner" aria-hidden="true"></span> {{ 'analyze.analysing' | t }}</p>
             }
           </div>
-          <button class="btn btn-primary btn-big btn-block" type="submit" [disabled]="busy() || !file()">{{ 'analyze.submit' | t }}</button>
+          <button class="btn btn-primary btn-big btn-block" type="submit" [disabled]="busy() || !file()">
+            @if (busy()) {<span class="spinner" aria-hidden="true"></span>} @else {<app-icon name="search" />} {{ 'analyze.submit' | t }}</button>
         </form>
       } @else {
         <app-analysis-result [analysis]="result()!" />
-        <button class="btn" type="button" (click)="reset()">{{ 'analyze.choosePhoto' | t }}</button>
+        <button class="btn btn-block" type="button" (click)="reset()"><app-icon name="camera" /> {{ 'analyze.another' | t }}</button>
       }
     </section>
   `,
-  styles: `.preview{max-height:18rem;border-radius:10px;border:1px solid var(--c-border);object-fit:contain;background:#fff}`,
+  styles: `
+    .dropzone{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--space-2);text-align:center;min-height:13rem;padding:var(--space-5);border:2px dashed var(--c-border-strong);border-radius:var(--radius-lg);background:var(--c-surface-2);cursor:pointer;transition:border-color .15s,background .15s}
+    .dropzone:hover{border-color:var(--c-primary);background:var(--c-primary-soft)}
+    .field:focus-within .dropzone{outline:3px solid var(--c-focus);outline-offset:2px}
+    .dropzone strong{font-size:1.15rem;color:var(--c-primary-deep)}
+    .dropzone.has-file{background:var(--c-surface);border-style:solid}
+    .preview{max-height:18rem;border-radius:12px;object-fit:contain;background:#fff}
+    .mini-steps{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:var(--space-2)}
+    .mini-steps li{display:inline-flex;align-items:center;gap:var(--space-2);padding:.35rem .8rem;border-radius:999px;background:var(--c-surface);border:1px solid var(--c-border);color:var(--c-primary-deep)}
+  `,
 })
 export class AnalyzePage implements OnDestroy {
   private readonly api = inject(ApiClient);

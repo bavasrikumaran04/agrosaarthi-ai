@@ -52,7 +52,15 @@ describe('features', () => {
     expect(el.textContent).toContain('Tomato early blight');
     expect(el.textContent).toContain('87%');
     expect(el.textContent).toContain('not a confirmed diagnosis');
-    expect(el.querySelector('progress')?.getAttribute('aria-hidden')).toBeNull();
+    const meter = el.querySelector('[role="meter"]');
+    expect(meter?.getAttribute('aria-valuenow')).toBe('87');
+    expect(el.querySelector('#' + meter!.getAttribute('aria-labelledby'))?.textContent).toContain('87%');
+  });
+
+  it('says plainly when the model service runs the test-fixture model', () => {
+    const el = renderResult({ ...base, model: { ...base.model, name: 'TEST FIXTURE - not a crop model' } });
+    expect(el.textContent).toContain('does not recognise crop diseases yet');
+    expect(renderResult(base).textContent).not.toContain('does not recognise crop diseases yet');
   });
 
   it('never shows a disease for poor-quality or off-domain photos and explains why', () => {

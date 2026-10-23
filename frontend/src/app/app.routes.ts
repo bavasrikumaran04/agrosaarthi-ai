@@ -10,6 +10,7 @@ export const routes: Routes = [
   { path: 'help', data: { page: 'help' }, loadComponent: () => import('./features/public/info').then((m) => m.InfoPage) },
   { path: 'safety', data: { page: 'safety' }, loadComponent: () => import('./features/public/info').then((m) => m.InfoPage) },
   { path: 'privacy', data: { page: 'privacy' }, loadComponent: () => import('./features/public/info').then((m) => m.InfoPage) },
+  { path: 'phone-demo', loadComponent: () => import('./features/public/phone-demo').then((m) => m.PhoneDemoPage) },
   { path: 'crops', loadComponent: () => import('./features/farmer/crops').then((m) => m.CropsPage) },
   { path: 'crops/:key', loadComponent: () => import('./features/farmer/crops').then((m) => m.CropDetailPage) },
 

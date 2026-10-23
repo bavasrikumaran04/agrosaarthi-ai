@@ -3,7 +3,7 @@
 > Status vocabulary: **LOCAL-TESTED** (implemented and locally tested) · **LIVE-VERIFIED** (tested with live external
 > services) · **DEPLOYED** · **BLOCKED** (missing credentials/external dependency) · **NOT IMPLEMENTED**.
 
-_Last updated: 2026-10-23 ~10:55 IST_
+_Last updated: 2026-10-23 ~12:00 IST (presentation-ready UI pass)_
 
 ## Phase 1 — Web application: LOCAL-TESTED
 
@@ -20,6 +20,19 @@ _Last updated: 2026-10-23 ~10:55 IST_
 | Storage: local + S3-compatible private storage, signed URLs, retention sweep | Local LOCAL-TESTED; S3 adapter unit-tested with mocks only (BLOCKED for live: no bucket) | |
 | Backend ↔ model service HTTP integration | LOCAL-TESTED with the labelled **test-fixture** ONNX model | No trained crop-disease model exists yet (Phase 4) — no genuine disease inference |
 
+## Presentation-ready prototype pass (2026-10-23, midday): LOCAL-TESTED
+
+| Feature | Status | Notes |
+|---|---|---|
+| Redesigned UI: design system, SVG icon set (no new dependency), sticky header, segmented Tamil/English switch, footer | LOCAL-TESTED | Screenshots checked at 1366 px and 390 px |
+| Landing page: problem, solution channels with honest status chips, how it works, benefits, architecture, call to action | LOCAL-TESTED | Status chips: working / partly working / in development |
+| Farmer dashboard tiles, request lists with status colours, empty/loading states, photo drop zone, result confidence meter, auth cards | LOCAL-TESTED | |
+| Test-model notice on result/case/expert pages when the model service runs the TEST FIXTURE model | LOCAL-TESTED | Prevents the test model's output being mistaken for a diagnosis |
+| Phone-line (IVR) **browser simulator** `/phone-demo`: keypad + DTMF tones, Tamil/English prompts (browser speech synthesis), speech or typed input | LOCAL-TESTED (E2E) | Clearly labelled SIMULATOR. A guest's walkthrough saves nothing; a signed-in farmer's request is saved through the normal case + call-back API, tagged "[Phone line simulator]". **No telephony integration.** |
+| `npm run demo:setup` (demo farmer + expert, refused in production; password from `DEMO_PASSWORD` or printed once) | LOCAL-TESTED | |
+| `start-demo.ps1` one-command local start | Detection path tested (all services up); cold start not exercised | |
+| `docs/DEMO_GUIDE.md` presentation script + honest status + Q&A | Written | |
+
 ## Verified results (2026-10-23)
 
 | Command | Result |
@@ -27,8 +40,9 @@ _Last updated: 2026-10-23 ~10:55 IST_
 | `backend: npx vitest run` | 9 files, **119 passed** |
 | `backend: npx tsc --noEmit`, `npx eslint .`, `npm run build`, `npm audit --omit=dev` | all pass, 0 vulnerabilities |
 | `model-service: python -m pytest -q` | **28 passed** |
-| `frontend: npx ng test --watch=false` | 2 files, **15 passed** |
+| `frontend: npx ng test --watch=false` | 2 files, **16 passed** (after UI pass) |
 | `frontend: npx ng build`, `npm audit --omit=dev` | pass, 0 vulnerabilities |
+| `e2e: npx playwright test` after UI pass | **7 passed** (adds phone-simulator guest + farmer test) |
 | `e2e: npx playwright test` (live local stack: MongoDB 8.2.6 via dev:mongo, model service, API, ng serve, Chromium) | **6 passed** — Tamil default, crop pages, farmer register → photo → model-service result → callback, farmer denied admin area, admin creates expert, expert takes/assesses/resolves, farmer sees answer in Tamil |
 
 ## Not implemented yet

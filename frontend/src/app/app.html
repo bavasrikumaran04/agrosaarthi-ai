@@ -1,39 +1,61 @@
 <a class="skip-link" href="#main">{{ 'app.skip' | t }}</a>
 <header class="site-header">
   <div class="container header-row">
-    <a routerLink="/" class="brand">
-      <span class="brand-mark" aria-hidden="true">🌱</span>
-      <span>{{ 'app.name' | t }}</span>
+    <a routerLink="/" class="brand" [attr.aria-label]="'app.name' | t">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" width="34" height="34"><rect width="32" height="32" rx="9" fill="#1e7a3a"/><path d="M16 25c0-6 1-10 7-14-6 0-10 3-11 8-1-3-3-5-6-5 1 5 4 8 10 11z" fill="#fff"/><path d="M16 25v-5" stroke="#cdebd3" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </span>
+      <span class="brand-text">
+        <span class="brand-name">Agro<b>Saarthi</b> <span class="brand-ai">AI</span></span>
+        <span class="brand-tag">{{ 'app.tagline' | t }}</span>
+      </span>
     </a>
     <div class="lang" role="group" [attr.aria-label]="'app.language' | t">
       @for (l of languages; track l.code) {
         <button type="button" class="lang-btn" [attr.aria-pressed]="i18n.language() === l.code" [attr.lang]="l.code" (click)="setLanguage(l.code)">{{ l.nativeName }}</button>
       }
     </div>
-    <button type="button" class="btn menu-btn" [attr.aria-expanded]="menuOpen()" aria-controls="site-nav" (click)="menuOpen.set(!menuOpen())">{{ 'nav.menu' | t }}</button>
+    <button type="button" class="btn menu-btn" [attr.aria-expanded]="menuOpen()" aria-controls="site-nav" (click)="menuOpen.set(!menuOpen())">
+      <app-icon [name]="menuOpen() ? 'close' : 'menu'" [size]="22" /><span class="menu-label">{{ 'nav.menu' | t }}</span>
+    </button>
   </div>
-  <nav id="site-nav" class="container nav" [class.open]="menuOpen()" [attr.aria-label]="'nav.menu' | t">
-    <ul>
-      @for (l of links(); track l.path) {
-        <li><a [routerLink]="l.path" routerLinkActive="active" [attr.aria-current]="null">{{ l.label | t }}</a></li>
-      }
-      @if (auth.isAuthenticated()) {
-        <li><a routerLink="/account/password">{{ 'nav.account' | t }}</a></li>
-        <li><button type="button" class="btn-link" (click)="logout()">{{ 'nav.logout' | t }}</button></li>
-      } @else {
-        <li><a routerLink="/login">{{ 'nav.login' | t }}</a></li>
-        <li><a routerLink="/register" class="btn btn-primary">{{ 'nav.register' | t }}</a></li>
-      }
-    </ul>
+  <nav id="site-nav" class="nav" [class.open]="menuOpen()" [attr.aria-label]="'nav.menu' | t">
+    <div class="container">
+      <ul>
+        @for (l of links(); track l.path) {
+          <li><a [routerLink]="l.path" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: l.path === '/' }"><app-icon [name]="l.icon" [size]="18" /> {{ l.label | t }}</a></li>
+        }
+        <li class="spacer" aria-hidden="true"></li>
+        @if (auth.isAuthenticated()) {
+          <li class="who small" aria-hidden="true" [attr.title]="auth.user()?.name"><span class="avatar">{{ initial() }}</span> <span class="who-name">{{ auth.user()?.name }}</span></li>
+          <li><a routerLink="/account/password" routerLinkActive="active"><app-icon name="settings" [size]="18" /> {{ 'nav.account' | t }}</a></li>
+          <li><button type="button" class="nav-btn" (click)="logout()"><app-icon name="logout" [size]="18" /> {{ 'nav.logout' | t }}</button></li>
+        } @else {
+          <li><a routerLink="/login" routerLinkActive="active">{{ 'nav.login' | t }}</a></li>
+          <li><a routerLink="/register" class="btn btn-primary btn-sm">{{ 'nav.register' | t }}</a></li>
+        }
+      </ul>
+    </div>
   </nav>
 </header>
 <main id="main" #main class="container page">
   <router-outlet />
 </main>
 <footer class="site-footer">
-  <div class="container cluster small">
-    <a routerLink="/help">{{ 'nav.help' | t }}</a>
-    <a routerLink="/safety">{{ 'info.safetyTitle' | t }}</a>
-    <a routerLink="/privacy">{{ 'info.privacyTitle' | t }}</a>
+  <div class="container footer-grid">
+    <div class="stack">
+      <p class="footer-brand">AgroSaarthi AI</p>
+      <p class="small">{{ 'footer.about' | t }}</p>
+    </div>
+    <nav [attr.aria-label]="'footer.links' | t">
+      <ul class="footer-links small">
+        <li><a routerLink="/crops">{{ 'nav.crops' | t }}</a></li>
+        <li><a routerLink="/phone-demo">{{ 'nav.phoneDemo' | t }}</a></li>
+        <li><a routerLink="/help">{{ 'nav.help' | t }}</a></li>
+        <li><a routerLink="/safety">{{ 'info.safetyTitle' | t }}</a></li>
+        <li><a routerLink="/privacy">{{ 'info.privacyTitle' | t }}</a></li>
+      </ul>
+    </nav>
+    <p class="small footer-note">{{ 'footer.prototype' | t }}</p>
   </div>
 </footer>

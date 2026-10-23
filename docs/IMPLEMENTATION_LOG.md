@@ -54,3 +54,16 @@ Chronological record of what was done, what was run, and what happened. Newest e
   hidden menu button, language preference applied on sign-in, ambiguous label); one run was correctly blocked by the
   auth rate limiter (20/15 min) — backend restarted to clear the in-memory limiter.
 - Results: backend 119 passed; model-service 28 passed; frontend 15 passed; E2E 6 passed; builds/lint/typecheck/audits pass.
+
+### Presentation-ready UI pass (≈11:00–12:00 IST)
+- Request: polished, demonstrable prototype for a college presentation the same afternoon (the request text was truncated
+  after "5. Displaying the current model-service result"; everything up to that point was implemented).
+- Work done directly (no parallel agents). Design system rewritten keeping all class names; new `shared/icon.ts`;
+  shell, landing page, dashboard, lists, analyze/result, crops, ask, auth, expert and admin pages restyled; new strings in en + ta.
+- New `/phone-demo` IVR simulator (labelled; saves real requests only for a signed-in farmer); `demo:setup` script; `start-demo.ps1`;
+  `docs/DEMO_GUIDE.md`.
+- Honesty: result pages now show an explicit notice when the TEST FIXTURE model produced the result.
+- Issues found and fixed: blank Register button in the nav (style clash), heading focus outline, wrapping signed-in nav,
+  `start-demo.ps1` missed ng serve because it listens on `::1` only; repeated E2E runs hit the auth rate limiter (correct
+  behaviour) — local `backend/.env` now sets `AUTH_RATE_LIMIT_MAX=100` for demos (production default unchanged: 20).
+- Results: backend 119 passed, tsc + eslint clean; frontend 16 passed, build OK (~103 kB initial transfer); E2E 7 passed.

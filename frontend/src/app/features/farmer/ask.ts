@@ -7,6 +7,8 @@ import { I18nService, TranslatePipe } from '../../core/i18n/i18n';
 import type { Crop } from '../../core/models';
 import { FieldErrors } from '../../shared/field-errors';
 import { VoiceInputService } from './voice-input';
+import { Icon } from '../../shared/icon';
+
 
 /**
  * Ask a question. The AI assistant is a later phase; today the question is sent
@@ -14,19 +16,22 @@ import { VoiceInputService } from './voice-input';
  */
 @Component({
   selector: 'app-ask',
-  imports: [ReactiveFormsModule, RouterLink, TranslatePipe, FieldErrors],
+  imports: [ReactiveFormsModule, RouterLink, TranslatePipe, FieldErrors, Icon],
   template: `
     <section class="stack narrow">
-      <h1>{{ 'ask.title' | t }}</h1>
-      <p>{{ 'ask.lead' | t }}</p>
-      <div class="alert">{{ 'ask.aiNotice' | t }}</div>
+      <div>
+        <span class="eyebrow"><app-icon name="chat" [size]="18" /> {{ 'ask.eyebrow' | t }}</span>
+        <h1>{{ 'ask.title' | t }}</h1>
+        <p class="lead">{{ 'ask.lead' | t }}</p>
+      </div>
+      <div class="alert"><strong>{{ 'ask.aiNotice' | t }}</strong></div>
       @if (sentNumber()) {
         <div class="alert alert-success" role="status">
           <p>{{ 'ask.sent' | t: { number: sentNumber()! } }}</p>
           <a class="btn" [routerLink]="['/cases', sentId()]">{{ 'result.viewCase' | t }}</a>
         </div>
       } @else {
-        <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="stack">
+        <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="stack form-card">
           <div class="field">
             <label for="crop">{{ 'ask.cropLabel' | t }}</label>
             <select id="crop" formControlName="cropKey">
@@ -43,9 +48,9 @@ import { VoiceInputService } from './voice-input';
           @if (voice.supported) {
             <div class="cluster">
               @if (!voice.listening()) {
-                <button type="button" class="btn" (click)="listen()">🎤 {{ 'ask.voiceStart' | t }}</button>
+                <button type="button" class="btn btn-big" (click)="listen()"><app-icon name="mic" /> {{ 'ask.voiceStart' | t }}</button>
               } @else {
-                <button type="button" class="btn btn-danger" (click)="voice.stop()">⏹ {{ 'ask.voiceStop' | t }}</button>
+                <button type="button" class="btn btn-big btn-danger" (click)="voice.stop()"><app-icon name="close" /> {{ 'ask.voiceStop' | t }}</button>
                 <span role="status">{{ 'ask.voiceListening' | t }}</span>
               }
             </div>

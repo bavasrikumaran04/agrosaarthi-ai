@@ -5,13 +5,14 @@ import { ApiError } from '../../core/api';
 import { AuthService } from '../../core/auth';
 import { I18nService, TranslatePipe, UI_LANGUAGES } from '../../core/i18n/i18n';
 import { FieldErrors, phoneValidator } from '../../shared/field-errors';
+import { Icon } from '../../shared/icon';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule, RouterLink, TranslatePipe, FieldErrors],
+  imports: [ReactiveFormsModule, RouterLink, TranslatePipe, FieldErrors, Icon],
   template: `
-    <section class="stack narrow">
-      <h1>{{ 'auth.loginTitle' | t }}</h1>
+    <section class="stack narrow auth form-card">
+      <div class="auth-head"><span class="icon-chip lg"><app-icon name="lock" [size]="28" /></span><h1>{{ 'auth.loginTitle' | t }}</h1></div>
       @if (error()) {<div class="alert alert-danger" role="alert">{{ error() }}</div>}
       <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="stack">
         <div class="field">
@@ -70,10 +71,10 @@ export class LoginPage {
 
 @Component({
   selector: 'app-register',
-  imports: [ReactiveFormsModule, RouterLink, TranslatePipe, FieldErrors],
+  imports: [ReactiveFormsModule, RouterLink, TranslatePipe, FieldErrors, Icon],
   template: `
-    <section class="stack narrow">
-      <h1>{{ 'auth.registerTitle' | t }}</h1>
+    <section class="stack narrow auth form-card">
+      <div class="auth-head"><span class="icon-chip lg"><app-icon name="sprout" [size]="28" /></span><h1>{{ 'auth.registerTitle' | t }}</h1></div>
       @if (error()) {<div class="alert alert-danger" role="alert">{{ error() }}</div>}
       <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="stack">
         <div class="field">
@@ -154,10 +155,10 @@ export class RegisterPage {
 
 @Component({
   selector: 'app-change-password',
-  imports: [ReactiveFormsModule, TranslatePipe, FieldErrors],
+  imports: [ReactiveFormsModule, TranslatePipe, FieldErrors, Icon],
   template: `
-    <section class="stack narrow">
-      <h1>{{ 'auth.changePasswordTitle' | t }}</h1>
+    <section class="stack narrow auth form-card">
+      <div class="auth-head"><span class="icon-chip lg"><app-icon name="lock" [size]="28" /></span><h1>{{ 'auth.changePasswordTitle' | t }}</h1></div>
       @if (auth.user()?.mustChangePassword) {<div class="alert alert-warning">{{ 'auth.mustChange' | t }}</div>}
       @if (done()) {<div class="alert alert-success" role="status">{{ 'auth.passwordChanged' | t }}</div>}
       @if (error()) {<div class="alert alert-danger" role="alert">{{ error() }}</div>}

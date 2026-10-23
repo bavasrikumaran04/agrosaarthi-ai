@@ -7,32 +7,46 @@ import { ApiClient } from '../../core/api';
 import { AuthService } from '../../core/auth';
 import { I18nService, TranslatePipe } from '../../core/i18n/i18n';
 import type { CaseDetail, CaseSummary } from '../../core/models';
+import { Icon } from '../../shared/icon';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [RouterLink, TranslatePipe, DatePipe],
+  imports: [RouterLink, TranslatePipe, DatePipe, Icon],
   template: `
-    <section class="stack">
-      <h1>{{ 'dashboard.title' | t: { name: auth.user()?.name ?? '' } }}</h1>
-      <p>{{ 'dashboard.lead' | t }}</p>
-      <div class="grid">
-        <a class="btn btn-primary btn-big" routerLink="/analyze">📷 {{ 'nav.analyze' | t }}</a>
-        <a class="btn btn-big" routerLink="/ask">💬 {{ 'nav.ask' | t }}</a>
-        <a class="btn btn-big" routerLink="/crops">🌾 {{ 'nav.crops' | t }}</a>
+    <section class="stack-lg">
+      <div class="welcome">
+        <div>
+          <span class="eyebrow"><app-icon name="sprout" [size]="18" /> {{ 'dashboard.eyebrow' | t }}</span>
+          <h1>{{ 'dashboard.title' | t: { name: auth.user()?.name ?? '' } }}</h1>
+          <p class="lead">{{ 'dashboard.lead' | t }}</p>
+        </div>
       </div>
-      <h2>{{ 'dashboard.recentCases' | t }}</h2>
-      @if (cases().length === 0 && !loading()) {<p>{{ 'dashboard.noCases' | t }}</p>}
-      <ul class="stack" style="list-style:none;padding:0">
-        @for (c of cases(); track c.id) {
-          <li><a class="card" [routerLink]="['/cases', c.id]">
-            <strong>{{ c.caseNumber }}</strong> · <span class="badge">{{ 'cases.statusLabel.' + c.status | t }}</span>
-            <p class="small muted">{{ c.symptomsPreview || c.latestAnalysis?.topLabel || '' }} · {{ c.createdAt | date: 'mediumDate' }}</p>
-          </a></li>
+      <div class="tiles">
+        <a class="tile primary" routerLink="/analyze"><span class="icon-chip lg"><app-icon name="camera" [size]="28" /></span><span>{{ 'nav.analyze' | t }}<small>{{ 'dashboard.analyzeHint' | t }}</small></span></a>
+        <a class="tile" routerLink="/ask"><span class="icon-chip lg"><app-icon name="chat" [size]="28" /></span><span>{{ 'nav.ask' | t }}<small>{{ 'dashboard.askHint' | t }}</small></span></a>
+        <a class="tile" routerLink="/crops"><span class="icon-chip lg accent"><app-icon name="leaf" [size]="28" /></span><span>{{ 'nav.crops' | t }}<small>{{ 'dashboard.cropsHint' | t }}</small></span></a>
+        <a class="tile" routerLink="/phone-demo"><span class="icon-chip lg info"><app-icon name="phone" [size]="28" /></span><span>{{ 'nav.phoneDemo' | t }}<small>{{ 'dashboard.phoneHint' | t }}</small></span></a>
+      </div>
+      <section class="stack">
+        <div class="page-head"><h2>{{ 'dashboard.recentCases' | t }}</h2>@if (cases().length) {<a routerLink="/cases" class="back-link">{{ 'dashboard.viewAll' | t }} <app-icon name="arrow" [size]="18" /></a>}</div>
+        @if (loading()) {<p class="loading" role="status"><span class="spinner" aria-hidden="true"></span> {{ 'app.loading' | t }}</p>}
+        @if (cases().length === 0 && !loading()) {
+          <div class="empty"><span class="icon-chip lg"><app-icon name="clipboard" [size]="28" /></span><p>{{ 'dashboard.noCases' | t }}</p><a class="btn btn-primary" routerLink="/analyze"><app-icon name="camera" /> {{ 'nav.analyze' | t }}</a></div>
         }
-      </ul>
-      <a routerLink="/cases">{{ 'dashboard.viewAll' | t }} →</a>
+        <ul class="record-list">
+          @for (c of cases(); track c.id) {
+            <li><a class="card record" [routerLink]="['/cases', c.id]">
+              <span class="icon-chip"><app-icon [name]="c.latestAnalysis ? 'camera' : 'chat'" /></span>
+              <span class="grow"><span class="title">{{ c.caseNumber }}</span>
+                <p class="small muted truncate">{{ c.symptomsPreview || c.latestAnalysis?.topLabel || '' }} · {{ c.createdAt | date: 'mediumDate' }}</p></span>
+              <span class="badge" [class]="'badge status-' + c.status">{{ 'cases.statusLabel.' + c.status | t }}</span>
+            </a></li>
+          }
+        </ul>
+      </section>
     </section>
   `,
+  styles: `.welcome{padding:var(--space-5);border-radius:var(--radius-lg);background:linear-gradient(135deg,var(--c-primary-soft),#f6faf3);border:1px solid var(--c-border)}.welcome h1{margin-bottom:var(--space-2)}.welcome .lead{margin:0}`,
 })
 export class DashboardPage {
   private readonly api = inject(ApiClient);
@@ -49,20 +63,25 @@ export class DashboardPage {
 
 @Component({
   selector: 'app-cases',
-  imports: [RouterLink, TranslatePipe, DatePipe],
+  imports: [RouterLink, TranslatePipe, DatePipe, Icon],
   template: `
     <section class="stack">
-      <h1>{{ 'cases.title' | t }}</h1>
-      @if (loading()) {<p role="status"><span class="spinner" aria-hidden="true"></span> {{ 'app.loading' | t }}</p>}
+      <div class="page-head"><h1>{{ 'cases.title' | t }}</h1><a class="btn btn-primary" routerLink="/analyze"><app-icon name="camera" /> {{ 'nav.analyze' | t }}</a></div>
+      @if (loading()) {<p class="loading" role="status"><span class="spinner" aria-hidden="true"></span> {{ 'app.loading' | t }}</p>}
       @if (error()) {<div class="alert alert-danger" role="alert">{{ error() }}</div>}
-      @if (!loading() && cases().length === 0) {<p>{{ 'cases.empty' | t }}</p><a class="btn btn-primary" routerLink="/analyze">{{ 'nav.analyze' | t }}</a>}
-      <ul class="stack" style="list-style:none;padding:0">
+      @if (!loading() && !error() && cases().length === 0) {
+        <div class="empty"><span class="icon-chip lg"><app-icon name="clipboard" [size]="28" /></span><p>{{ 'cases.empty' | t }}</p></div>
+      }
+      <ul class="record-list">
         @for (c of cases(); track c.id) {
-          <li><a class="card" [routerLink]="['/cases', c.id]">
-            <div class="cluster"><strong>{{ c.caseNumber }}</strong><span class="badge">{{ 'cases.statusLabel.' + c.status | t }}</span>
-              @if (c.latestAnalysis?.simulated) {<span class="badge badge-danger">TEST</span>}</div>
-            <p class="small">{{ c.symptomsPreview || c.latestAnalysis?.topLabel || '' }}</p>
-            <p class="small muted">{{ 'cases.created' | t }}: {{ c.createdAt | date: 'medium' }}</p>
+          <li><a class="card record" [routerLink]="['/cases', c.id]">
+            <span class="icon-chip"><app-icon [name]="c.latestAnalysis ? 'camera' : 'chat'" /></span>
+            <span class="grow">
+              <span class="title">{{ c.caseNumber }}</span> @if (c.latestAnalysis?.simulated) {<span class="badge badge-danger">TEST</span>}
+              <p class="small truncate">{{ c.symptomsPreview || c.latestAnalysis?.topLabel || '' }}</p>
+              <p class="small muted">{{ 'cases.created' | t }}: {{ c.createdAt | date: 'medium' }}</p>
+            </span>
+            <span class="badge" [class]="'badge status-' + c.status">{{ 'cases.statusLabel.' + c.status | t }}</span>
           </a></li>
         }
       </ul>
@@ -85,20 +104,21 @@ export class CasesPage {
 
 @Component({
   selector: 'app-case-detail',
-  imports: [RouterLink, TranslatePipe, DatePipe, FormsModule],
+  imports: [RouterLink, TranslatePipe, DatePipe, FormsModule, Icon],
   template: `
     <section class="stack narrow">
-      <a routerLink="/cases">← {{ 'app.back' | t }}</a>
+      <a routerLink="/cases" class="back-link"><app-icon name="back" [size]="18" /> {{ 'app.back' | t }}</a>
       @if (error()) {<div class="alert alert-danger" role="alert">{{ error() }}</div>}
       @if (c(); as c) {
         <h1>{{ 'cases.detailTitle' | t: { number: c.caseNumber } }}</h1>
-        <p><span class="badge">{{ 'cases.statusLabel.' + c.status | t }}</span></p>
+        <p><span class="badge" [class]="'badge status-' + c.status">{{ 'cases.statusLabel.' + c.status | t }}</span></p>
         @if (notice()) {<div class="alert alert-success" role="status">{{ notice() }}</div>}
         @if (c.symptomsText) {<div class="card"><h2>{{ 'cases.symptoms' | t }}</h2><p>{{ c.symptomsText }}</p></div>}
         @for (a of c.analyses; track a.id) {
           <div class="card">
             <h2>{{ 'cases.analysis' | t }}</h2>
             @if (a.model.simulated) {<div class="alert alert-danger"><strong>{{ 'app.simulatedBanner' | t }}</strong></div>}
+            @if (!a.model.simulated && (a.model.name ?? '').toUpperCase().includes('TEST FIXTURE')) {<div class="alert alert-danger"><strong>{{ 'result.testModelNotice' | t }}</strong></div>}
             @if (a.outcome) {<p><strong>{{ 'result.outcome.' + a.outcome | t }}</strong></p>}
             @if ((a.outcome === 'LIKELY_MATCH' || a.outcome === 'UNCERTAIN') && a.predictions[0]) {
               <p>{{ 'result.possibleProblem' | t }}: {{ a.predictions[0].label }} ({{ 'result.sureness' | t: { percent: pct(a.predictions[0].score) } }})</p>
@@ -134,7 +154,7 @@ export class CasesPage {
           <div class="card stack">
             <h2>{{ 'cases.callbackTitle' | t }}</h2>
             @if (openCallback(c)) {<p>{{ 'cases.callbackRequested' | t }}</p>} @else {
-              <fieldset class="choice-list" style="border:0;padding:0">
+              <fieldset class="choice-list choice-row">
                 <legend>{{ 'cases.callbackWindow' | t }}</legend>
                 @for (w of windows; track w) {
                   <label class="choice"><input type="radio" name="win" [value]="w" [(ngModel)]="window" /> {{ 'cases.window.' + w | t }}</label>
@@ -142,14 +162,14 @@ export class CasesPage {
               </fieldset>
               <label for="cbr">{{ 'cases.callbackReason' | t }}</label>
               <input id="cbr" type="text" [(ngModel)]="callbackReason" maxlength="500" />
-              <button class="btn btn-primary" type="button" (click)="requestCallback()" [disabled]="busy()">📞 {{ 'cases.callbackButton' | t }}</button>
+              <button class="btn btn-primary btn-big" type="button" (click)="requestCallback()" [disabled]="busy()"><app-icon name="phone" /> {{ 'cases.callbackButton' | t }}</button>
             }
           </div>
         }
       }
     </section>
   `,
-  styles: `.msg{border-left:4px solid var(--c-border);padding-left:.75rem}.msg.mine{border-color:var(--c-primary)}`,
+  styles: `.msg{background:var(--c-surface-2);border-radius:12px 12px 12px 4px;padding:.6rem .9rem;max-width:92%}.msg p{margin:0}.msg.mine{background:var(--c-primary-soft);margin-left:auto;border-radius:12px 12px 4px 12px}`,
 })
 export class CaseDetailPage {
   private readonly api = inject(ApiClient);

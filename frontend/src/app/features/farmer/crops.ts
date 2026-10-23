@@ -4,20 +4,25 @@ import { firstValueFrom } from 'rxjs';
 import { ApiClient } from '../../core/api';
 import { I18nService, TranslatePipe } from '../../core/i18n/i18n';
 import type { Crop, CropDetail } from '../../core/models';
+import { Icon } from '../../shared/icon';
+
 
 @Component({
   selector: 'app-crops',
-  imports: [RouterLink, TranslatePipe],
+  imports: [RouterLink, TranslatePipe, Icon],
   template: `
     <section class="stack">
-      <h1>{{ 'crops.title' | t }}</h1>
-      <p>{{ 'crops.lead' | t }}</p>
+      <div>
+        <span class="eyebrow"><app-icon name="leaf" [size]="18" /> {{ 'crops.eyebrow' | t }}</span>
+        <h1>{{ 'crops.title' | t }}</h1>
+        <p class="lead">{{ 'crops.lead' | t }}</p>
+      </div>
       @if (loading()) {<p role="status"><span class="spinner" aria-hidden="true"></span> {{ 'app.loading' | t }}</p>}
       @if (error()) {<div class="alert alert-danger" role="alert">{{ error() }} <button class="btn-link" (click)="load()">{{ 'app.retry' | t }}</button></div>}
       <div class="grid">
         @for (c of crops(); track c.key) {
           <a class="card" [routerLink]="['/crops', c.key]">
-            <h2>{{ c.name }}</h2>
+            <div class="card-head"><span class="icon-chip" [class.accent]="!c.supportedByModel"><app-icon name="sprout" /></span><h2>{{ c.name }}</h2></div>
             @if (c.scientificName) {<p class="muted small"><i>{{ c.scientificName }}</i></p>}
             <span class="badge" [class.badge-ok]="c.supportedByModel" [class.badge-warn]="!c.supportedByModel">
               {{ (c.supportedByModel ? 'crops.modelSupported' : 'crops.modelNotSupported') | t }}
@@ -59,10 +64,10 @@ export class CropsPage {
 
 @Component({
   selector: 'app-crop-detail',
-  imports: [RouterLink, TranslatePipe],
+  imports: [RouterLink, TranslatePipe, Icon],
   template: `
     <section class="stack">
-      <a routerLink="/crops">← {{ 'app.back' | t }}</a>
+      <a routerLink="/crops" class="back-link"><app-icon name="back" [size]="18" /> {{ 'app.back' | t }}</a>
       @if (error()) {<div class="alert alert-danger" role="alert">{{ error() }}</div>}
       @if (crop(); as c) {
         <h1>{{ c.name }}</h1>
@@ -70,7 +75,7 @@ export class CropsPage {
         <span class="badge" [class.badge-ok]="c.supportedByModel" [class.badge-warn]="!c.supportedByModel">{{ (c.supportedByModel ? 'crops.modelSupported' : 'crops.modelNotSupported') | t }}</span>
         <h2>{{ 'crops.diseasesTitle' | t }}</h2>
         @if (c.diseases.length === 0) {<p>{{ 'admin.noData' | t }}</p>}
-        <ul class="stack" style="list-style:none;padding:0">
+        <ul class="grid" style="list-style:none;padding:0">
           @for (d of c.diseases; track d.key) {
             <li class="card">
               <h3>{{ d.name }}</h3>
@@ -80,8 +85,8 @@ export class CropsPage {
           }
         </ul>
         <div class="cluster">
-          @if (c.supportedByModel) {<a class="btn btn-primary" routerLink="/analyze" [queryParams]="{ crop: c.key }">{{ 'nav.analyze' | t }}</a>}
-          <a class="btn" routerLink="/ask" [queryParams]="{ crop: c.key }">{{ 'nav.ask' | t }}</a>
+          @if (c.supportedByModel) {<a class="btn btn-primary btn-big" routerLink="/analyze" [queryParams]="{ crop: c.key }"><app-icon name="camera" /> {{ 'nav.analyze' | t }}</a>}
+          <a class="btn btn-big" routerLink="/ask" [queryParams]="{ crop: c.key }"><app-icon name="chat" /> {{ 'nav.ask' | t }}</a>
         </div>
       }
     </section>

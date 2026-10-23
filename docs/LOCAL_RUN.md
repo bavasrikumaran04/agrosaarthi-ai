@@ -1,5 +1,9 @@
 # Running AgroSaarthi locally
 
+**Quick start (after the one-time setup below):** `powershell -ExecutionPolicy Bypass -File .\start-demo.ps1` from the
+repository root starts all four services in separate windows. Demo accounts: `cd backend; $env:DEMO_PASSWORD='…'; npm run demo:setup`.
+Presentation script: [DEMO_GUIDE.md](DEMO_GUIDE.md).
+
 Requirements: Node 20.19+ (22/24 recommended), Python 3.14 + `uv`. No MongoDB install needed.
 
 ```bash

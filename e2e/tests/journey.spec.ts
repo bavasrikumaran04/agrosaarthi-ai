@@ -169,4 +169,29 @@ test.describe.serial('AgroSaarthi user journey', () => {
     await page.getByRole('button', { name: 'தமிழ்' }).click();
     await expect(page.getByText('பதில் அளிக்கப்பட்டது')).toBeVisible();
   });
+
+  test('phone-line simulator: guest walkthrough saves nothing; signed-in farmer creates a real request', async ({ page }) => {
+    const callThrough = async () => {
+      await page.getByRole('button', { name: 'Call', exact: true }).click();
+      for (const k of ['2', '1', '2']) await page.getByRole('button', { name: `Key ${k}`, exact: true }).click(); // English, report problem, tomato
+      await page.getByLabel(/Or type what the caller says/).fill('Yellow patches on tomato leaves since last week');
+      await page.getByRole('button', { name: 'Use this text' }).click();
+      await page.getByRole('button', { name: 'Key 1', exact: true }).click(); // send to expert
+      await page.getByRole('button', { name: 'Key 1', exact: true }).click(); // morning
+    };
+    await page.goto('/');
+    await page.getByRole('button', { name: 'English' }).click();
+    await page.goto('/phone-demo');
+    await expect(page.getByText(/SIMULATOR/)).toBeVisible();
+    await callThrough();
+    await expect(page.getByText(/This is a demonstration only/).first()).toBeVisible();
+
+    await signIn(page, farmerPhone, farmerPassword);
+    await page.goto('/phone-demo');
+    await callThrough();
+    await expect(page.getByText(/Your request is registered\. Request number AGS-/).first()).toBeVisible();
+    await page.getByRole('link', { name: 'Open the saved request' }).click();
+    await expect(page.getByText(/\[Phone line simulator\] Yellow patches/)).toBeVisible();
+    await expect(page.getByText(/will try to call you/).first()).toBeVisible();
+  });
 });

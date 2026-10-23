@@ -6,24 +6,25 @@ import { firstValueFrom } from 'rxjs';
 import { ApiClient } from '../../core/api';
 import { AuthService } from '../../core/auth';
 import { I18nService, TranslatePipe } from '../../core/i18n/i18n';
+import { Icon } from '../../shared/icon';
 import type { CaseDetail, CaseStatus, CaseSummary } from '../../core/models';
 
 type Scope = 'assigned' | 'unassigned' | 'resolved';
 
 @Component({
   selector: 'app-expert-dashboard',
-  imports: [RouterLink, TranslatePipe, DatePipe, FormsModule],
+  imports: [RouterLink, TranslatePipe, DatePipe, FormsModule, Icon],
   template: `
     <section class="stack">
-      <h1>{{ 'expert.title' | t }}</h1>
+      <div><span class="eyebrow"><app-icon name="expert" [size]="18" /> {{ 'expert.eyebrow' | t }}</span><h1>{{ 'expert.title' | t }}</h1></div>
       @if (stats(); as s) {
         <div class="grid">
-          <div class="card"><div class="stat">{{ s['assignedOpen'] }}</div>{{ 'expert.assignedOpen' | t }}</div>
-          <div class="card"><div class="stat">{{ s['unassigned'] }}</div>{{ 'expert.unassigned' | t }}</div>
-          <div class="card"><div class="stat">{{ s['pendingCallbacks'] }}</div>{{ 'expert.pendingCallbacks' | t }}</div>
-          <div class="card"><div class="stat">{{ s['resolvedLast7Days'] }}</div>{{ 'expert.resolved7' | t }}</div>
-          <div class="card" [class.alert-danger]="s['failedAnalysesLast24h'] > 0"><div class="stat">{{ s['failedAnalysesLast24h'] }}</div>{{ 'expert.failedAnalyses' | t }}</div>
-          <div class="card"><div class="stat">{{ s['flaggedOpen'] }}</div>{{ 'expert.flagged' | t }}</div>
+          <div class="card stat-card"><span class="icon-chip"><app-icon name="clipboard" /></span><div class="stat">{{ s['assignedOpen'] }}</div><span class="muted">{{ 'expert.assignedOpen' | t }}</span></div>
+          <div class="card stat-card"><span class="icon-chip"><app-icon name="clock" /></span><div class="stat">{{ s['unassigned'] }}</div><span class="muted">{{ 'expert.unassigned' | t }}</span></div>
+          <div class="card stat-card"><span class="icon-chip"><app-icon name="phone" /></span><div class="stat">{{ s['pendingCallbacks'] }}</div><span class="muted">{{ 'expert.pendingCallbacks' | t }}</span></div>
+          <div class="card stat-card"><span class="icon-chip"><app-icon name="check" /></span><div class="stat">{{ s['resolvedLast7Days'] }}</div><span class="muted">{{ 'expert.resolved7' | t }}</span></div>
+          <div class="card stat-card" [class.alert-danger]="s['failedAnalysesLast24h'] > 0"><span class="icon-chip"><app-icon name="alert" /></span><div class="stat">{{ s['failedAnalysesLast24h'] }}</div><span class="muted">{{ 'expert.failedAnalyses' | t }}</span></div>
+          <div class="card stat-card"><span class="icon-chip"><app-icon name="cpu" /></span><div class="stat">{{ s['flaggedOpen'] }}</div><span class="muted">{{ 'expert.flagged' | t }}</span></div>
         </div>
       }
       <div class="tabs" role="tablist">
@@ -34,7 +35,7 @@ type Scope = 'assigned' | 'unassigned' | 'resolved';
       <form class="cluster" role="search" (ngSubmit)="load()">
         <label class="visually-hidden" for="q">{{ 'expert.search' | t }}</label>
         <input id="q" type="search" [(ngModel)]="q" name="q" [placeholder]="'expert.search' | t" style="max-width:24rem" />
-        <button class="btn" type="submit">🔍</button>
+        <button class="btn" type="submit" [attr.aria-label]="'expert.search' | t"><app-icon name="search" [size]="20" /></button>
       </form>
       @if (error()) {<div class="alert alert-danger" role="alert">{{ error() }}</div>}
       <div class="table-wrap">
@@ -94,14 +95,14 @@ export class ExpertDashboardPage {
 
 @Component({
   selector: 'app-expert-case',
-  imports: [RouterLink, TranslatePipe, DatePipe, FormsModule],
+  imports: [RouterLink, TranslatePipe, DatePipe, FormsModule, Icon],
   template: `
     <section class="stack">
-      <a routerLink="/expert">← {{ 'app.back' | t }}</a>
+      <a routerLink="/expert"><app-icon name="back" [size]="18" /> {{ 'app.back' | t }}</a>
       @if (error()) {<div class="alert alert-danger" role="alert">{{ error() }}</div>}
       @if (notice()) {<div class="alert alert-success" role="status">{{ notice() }}</div>}
       @if (c(); as c) {
-        <h1>{{ c.caseNumber }} <span class="badge">{{ c.status }}</span> <span class="badge">{{ c.priority }}</span></h1>
+        <h1>{{ c.caseNumber }} <span class="badge" [class]="'badge status-' + c.status">{{ c.status }}</span> <span class="badge" [class.badge-danger]="c.priority === 'URGENT' || c.priority === 'HIGH'">{{ c.priority }}</span></h1>
         @if (c.view === 'TRIAGE') {
           <div class="alert alert-warning">{{ 'expert.triageView' | t }}</div>
           <button class="btn btn-primary" type="button" (click)="take()" [disabled]="busy()">{{ 'expert.take' | t }}</button>
@@ -127,6 +128,7 @@ export class ExpertDashboardPage {
               <div class="card">
                 <h2>{{ 'expert.analysisTitle' | t }}</h2>
                 @if (a.model.simulated) {<div class="alert alert-danger"><strong>{{ 'app.simulatedBanner' | t }}</strong></div>}
+            @if (!a.model.simulated && (a.model.name ?? '').toUpperCase().includes('TEST FIXTURE')) {<div class="alert alert-danger"><strong>{{ 'result.testModelNotice' | t }}</strong></div>}
                 @if (images()[a.id]) {<img [src]="images()[a.id]" alt="" class="leaf" />} @else {<button class="btn" type="button" (click)="loadImage(a.id)">🖼</button>}
                 <p>{{ a.outcome }} · {{ a.model.name }} {{ a.model.version }}</p>
                 <ul>@for (p of a.predictions; track $index) {<li>{{ p.label }} — {{ pct(p.score) }}%</li>}</ul>

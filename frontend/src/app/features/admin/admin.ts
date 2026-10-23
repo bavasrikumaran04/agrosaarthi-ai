@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { ApiClient } from '../../core/api';
 import { I18nService, TranslatePipe } from '../../core/i18n/i18n';
+import { Icon } from '../../shared/icon';
 
 interface Metrics {
   usersByRole: Record<string, number>;
@@ -24,10 +25,10 @@ type Tab = 'metrics' | 'users' | 'providers' | 'audit';
 
 @Component({
   selector: 'app-admin',
-  imports: [TranslatePipe, FormsModule, DatePipe, KeyValuePipe],
+  imports: [TranslatePipe, FormsModule, DatePipe, KeyValuePipe, Icon],
   template: `
     <section class="stack">
-      <h1>{{ 'admin.title' | t }}</h1>
+      <div><span class="eyebrow"><app-icon name="chart" [size]="18" /> {{ 'admin.eyebrow' | t }}</span><h1>{{ 'admin.title' | t }}</h1></div>
       <div class="tabs" role="tablist">
         @for (x of tabs; track x.id) {<button role="tab" type="button" [attr.aria-selected]="tab() === x.id" (click)="open(x.id)">{{ x.label | t }}</button>}
       </div>
@@ -36,9 +37,9 @@ type Tab = 'metrics' | 'users' | 'providers' | 'audit';
 
       @if (tab() === 'metrics' && metrics(); as m) {
         <div class="grid">
-          <div class="card"><div class="stat">{{ m.openCallbacks }}</div>{{ 'admin.openCallbacks' | t }}</div>
-          <div class="card"><div class="stat">{{ m.failedAnalysesLast7Days }}</div>{{ 'admin.failed7' | t }}</div>
-          <div class="card"><div class="stat">{{ m.simulatedAnalyses }}</div>{{ 'admin.simulated' | t }}</div>
+          <div class="card stat-card"><span class="icon-chip"><app-icon name="phone" /></span><div class="stat">{{ m.openCallbacks }}</div><span class="muted">{{ 'admin.openCallbacks' | t }}</span></div>
+          <div class="card stat-card"><span class="icon-chip"><app-icon name="alert" /></span><div class="stat">{{ m.failedAnalysesLast7Days }}</div><span class="muted">{{ 'admin.failed7' | t }}</span></div>
+          <div class="card stat-card"><span class="icon-chip"><app-icon name="cpu" /></span><div class="stat">{{ m.simulatedAnalyses }}</div><span class="muted">{{ 'admin.simulated' | t }}</span></div>
         </div>
         <div class="grid">
           @for (group of [['admin.usersByRole', m.usersByRole], ['admin.casesByStatus', m.casesByStatus], ['admin.analysesByOutcome', m.analysesByOutcome]]; track $index) {
