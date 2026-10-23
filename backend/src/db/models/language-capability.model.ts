@@ -2,6 +2,7 @@ import { model, Schema, type HydratedDocument, type InferSchemaType } from 'mong
 import { baseOptions } from '../schema-helpers.js';
 
 export const CAPABILITY_STATUSES = ['SUPPORTED', 'UNSUPPORTED', 'UNVERIFIED'] as const;
+export type CapabilityStatus = (typeof CAPABILITY_STATUSES)[number];
 
 /**
  * One capability claim, e.g. "provider X supports ta-IN speech recognition".
@@ -39,6 +40,12 @@ const languageCapabilitySchema = new Schema(
     updatedBy: { type: Schema.Types.ObjectId, ref: 'User' },
   },
   baseOptions('language_capabilities'),
+);
+
+/** At most one default language, enforced by the database (the admin service keeps it at exactly one). */
+languageCapabilitySchema.index(
+  { isDefault: 1 },
+  { unique: true, name: 'single_default_language', partialFilterExpression: { isDefault: true } },
 );
 
 export type LanguageCapability = InferSchemaType<typeof languageCapabilitySchema>;

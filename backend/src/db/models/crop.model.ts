@@ -2,6 +2,15 @@ import { model, Schema, type HydratedDocument, type InferSchemaType } from 'mong
 import { baseOptions } from '../schema-helpers.js';
 
 /**
+ * Who maintains a reference record (crops, diseases):
+ *  - SEED:  created by `npm run db:seed`; re-running the seed refreshes its content.
+ *  - ADMIN: created or edited by an administrator; the seed never overwrites it
+ *           (so a native-speaker correction of a Tamil name is not reverted).
+ */
+export const REFERENCE_MANAGERS = ['SEED', 'ADMIN'] as const;
+export type ReferenceManager = (typeof REFERENCE_MANAGERS)[number];
+
+/**
  * Crop reference data. Names and synonyms are stored per language code so the
  * retrieval layer can map a Tamil word (e.g. "தக்காளி") to the crop key "tomato".
  */
@@ -15,6 +24,9 @@ const cropSchema = new Schema(
     supportedByModel: { type: Boolean, default: false },
     active: { type: Boolean, default: true },
     notes: { type: String, maxlength: 2000 },
+    managedBy: { type: String, enum: [...REFERENCE_MANAGERS], default: 'ADMIN' },
+    /** Last administrator who changed the record (absent for seed-managed records). */
+    updatedBy: { type: Schema.Types.ObjectId, ref: 'User' },
     isDemo: { type: Boolean, default: false },
   },
   baseOptions('crops'),
