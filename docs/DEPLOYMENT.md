@@ -1,29 +1,29 @@
-# Deployment
+# Deployment (live, verified 2026-10-23)
 
-| Part | Host (free tier) | Config |
+| Part | Where | URL |
 |---|---|---|
-| Source + model weights | GitHub (repo + Release asset `model-2026.10.23-pv38.zip`, SHA-256 `24a313ba…98af`) | — |
-| Model service (FastAPI + ONNX Runtime) | Render web service, Docker | `render.yaml` → `agrosaarthi-model`, health `/ready` (503 until the model is loaded) |
-| API (Node/Express) | Render web service, Node 22 | `render.yaml` → `agrosaarthi-api`, health `/api/health/ready` |
-| Database | MongoDB Atlas M0 (free) | `MONGODB_URI` secret on Render |
-| Web app (Angular) | Vercel | `frontend/vercel.json` — SPA fallback + `/api/*` proxy to the API (keeps the refresh cookie first-party) |
+| Web app (Angular SPA) | Vercel project `agrosaarthi-ai` (`frontend/vercel.json`: SPA fallback + `/api/*` proxy) | https://agrosaarthi-ai.vercel.app |
+| API (Express, serverless function `backend/api/index.mjs`) | Vercel project `agrosaarthi-api` | https://agrosaarthi-api.vercel.app/api/health/ready |
+| Model service (FastAPI + ONNX Runtime, `model-service/api/index.py`) | Vercel project `agrosaarthi-model` (Python 3.12) | https://agrosaarthi-model.vercel.app/ready |
+| Database | MongoDB Atlas M0, project `agrosaarthi-ai`, cluster `agrosaarthi` (AWS us-east-1), user `agrosaarthi-api` (readWrite on `agrosaarthi`) | — |
+| Model weights | GitHub Release `model-2026.10.23-pv38` — downloaded to `/tmp` and SHA-256-verified on cold start | — |
 
-## Steps
-1. **Atlas:** create an M0 cluster, a database user (readWrite on `agrosaarthi`), network access `0.0.0.0/0`
-   (Render free has no static IPs). Copy the `mongodb+srv://…/agrosaarthi` string.
-2. **Render:** New → Blueprint → this repo. Fill the `sync:false` values: `MONGODB_URI`, `FRONTEND_ORIGINS` and
-   `PUBLIC_BASE_URL` (the Vercel URL), `MODEL_SERVICE_URL` (the `agrosaarthi-model` public URL).
-3. **Vercel:** import the repo with Root Directory `frontend`. If the API URL differs from
-   `https://agrosaarthi-api.onrender.com`, edit the rewrite in `frontend/vercel.json`.
-4. Create the first administrator from the Render shell: `npm run admin:create -- --email … --name "…"`.
+Browsers only talk to `agrosaarthi-ai.vercel.app`; `/api` is proxied to the API, so the refresh cookie is first-party.
+Secrets (MongoDB URI, JWT/encryption/hash/signing keys, model-service token) are Vercel environment variables only.
 
-## Verified locally (2026-10-23)
-- Model service downloads the release asset, verifies SHA-256, loads the model; `/ready` = ready; held-out
-  `Tomato__Late_blight.jpg` → Tomato — Late blight (0.9995).
-- API starts with `NODE_ENV=production` and the settings above (production safety checks pass).
+## Redeploy
+`vercel deploy --prod` from `frontend/`, `backend/` or `model-service/` (each folder is linked to its Vercel project).
+`render.yaml` remains as an alternative (Render) blueprint; it is not used by the live deployment.
 
-## Known free-tier limits
-- Render free services sleep after ~15 min idle; the first request takes ~1 min (timeout raised to 60 s).
-- Uploaded photos are on ephemeral disk (`ALLOW_LOCAL_STORAGE_IN_PRODUCTION=true`); use S3-compatible storage
-  (`STORAGE_PROVIDER=s3`) for durability.
-- Gemini, speech and telephony are not configured (`none`).
+## Verified on the public deployment
+- Playwright suite (7 journeys) with `E2E_BASE_URL=https://agrosaarthi-ai.vercel.app`: 7 passed.
+- Demo farmer uploads `Tomato__Late_blight.jpg` → API 201 → model service → "Tomato — Late blight", LIKELY_MATCH, not simulated.
+- Admin/case endpoints: 401 without a token, 403 for a farmer on admin routes; login without the CSRF header: 400.
+- Data persists across a backend redeploy (Atlas).
+
+## Limits
+- Uploaded photos are stored in the function's `/tmp` (ephemeral, per instance): the photo may not be viewable later from
+  the expert page. Configure S3-compatible storage (`STORAGE_PROVIDER=s3`) for durability.
+- Rate limits are in-memory per serverless instance (weaker than on a single server).
+- Cold starts: first request after idle can take several seconds (model download ≈16 MB).
+- Gemini, server-side speech, telephony and SMS are not configured.

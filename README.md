@@ -44,10 +44,13 @@ and the model service downloads and SHA-256-verifies it at startup (`MODEL_ARTIF
 Training: [ml/README.md](ml/README.md). Dataset: PlantVillage (Hughes & Salathé, 2015, CC BY-SA 3.0) via
 [`geraldmc/plantvillage-full`](https://huggingface.co/datasets/geraldmc/plantvillage-full).
 
+## Live demo
+
+https://agrosaarthi-ai.vercel.app (Vercel + MongoDB Atlas; see docs/DEPLOYMENT.md)
+
 ## Deployment
 
-See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) — `render.yaml` (API + model service), `frontend/vercel.json`
-(SPA + `/api` proxy) and MongoDB Atlas.
+See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md): three Vercel projects (web, API, model service) and MongoDB Atlas.
 
 ## Disclaimer
 

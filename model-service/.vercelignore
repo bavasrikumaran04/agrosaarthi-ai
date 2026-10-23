@@ -1,0 +1,7 @@
+.venv
+models
+tests
+.pytest_cache
+__pycache__
+scripts
+Dockerfile

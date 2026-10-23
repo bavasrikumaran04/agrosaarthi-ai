@@ -62,12 +62,9 @@ server-side STT/TTS and telephony/simulator (Phase 5) · privacy-request workflo
 Gemini API key · managed MongoDB · S3 bucket · speech provider · telephony account + Indian number · hosting · legal review ·
 native Tamil review · expert review of knowledge content. Node 20 (EOL) locally — upgrade recommended.
 
-## Deployment status (2026-10-23 ~14:45 IST)
-- GitHub: https://github.com/bavasrikumaran04/agrosaarthi-ai (public, `main`); CI green on all 4 jobs.
-- Model weights: GitHub Release `model-2026.10.23-pv38` (download + SHA-256 + load + inference verified locally).
-- Render / Vercel / MongoDB Atlas: **BLOCKED** — no accounts or API tokens on this machine. Config ready:
-  `render.yaml`, `frontend/vercel.json`, `docs/DEPLOYMENT.md`.
-- Fixed: unanchored `.gitignore` rule had excluded `backend/src/providers/storage/` from Git (CI caught it).
+## Deployment status: DEPLOYED (2026-10-23 ~15:10 IST)
+- Web: https://agrosaarthi-ai.vercel.app · API: https://agrosaarthi-api.vercel.app · Model: https://agrosaarthi-model.vercel.app
+- MongoDB Atlas M0 (`agrosaarthi-ai` project). Public E2E 7/7; real photo prediction verified. Details: docs/DEPLOYMENT.md.
 
 ## Exact next actions
 1. Phase 2: knowledge base (ingestion, chunking, retrieval with Tamil query expansion) + sourced documents.
