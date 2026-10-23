@@ -1,0 +1,14 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "npm ci",
+  "buildCommand": "npx ng build",
+  "outputDirectory": "dist/browser",
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "https://agrosaarthi-api.onrender.com/api/:path*" },
+    { "source": "/((?!.*\\.[a-zA-Z0-9]+$).*)", "destination": "/index.html" }
+  ],
+  "headers": [
+    { "source": "/app-config.json", "headers": [{ "key": "Cache-Control", "value": "no-store" }] }
+  ]
+}

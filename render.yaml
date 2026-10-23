@@ -1,0 +1,64 @@
+# Render Blueprint — AgroSaarthi API + model service (free plan).
+# Values marked sync:false are entered in the Render dashboard (never committed).
+services:
+  - type: web
+    name: agrosaarthi-model
+    runtime: docker
+    plan: free
+    dockerfilePath: ./model-service/Dockerfile
+    dockerContext: ./model-service
+    healthCheckPath: /ready            # 503 until the trained model is downloaded, verified and loaded
+    autoDeploy: true
+    envVars:
+      - key: MODEL_SERVICE_TOKEN
+        generateValue: true
+      - key: MODEL_ARTIFACT_URL
+        value: https://github.com/bavasrikumaran04/agrosaarthi-ai/releases/download/model-2026.10.23-pv38/model-2026.10.23-pv38.zip
+      - key: MODEL_ARTIFACT_SHA256
+        value: 24a313baad871503746cf19d546bc129c328eb40b167aa0263aa2a61477598af
+
+  - type: web
+    name: agrosaarthi-api
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health/ready
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "22"
+      - key: MONGODB_URI
+        sync: false                    # MongoDB Atlas connection string
+      - key: FRONTEND_ORIGINS
+        sync: false                    # e.g. https://agrosaarthi-ai.vercel.app
+      - key: PUBLIC_BASE_URL
+        sync: false                    # same as the frontend URL (file links go through its /api proxy)
+      - key: MODEL_SERVICE_URL
+        sync: false                    # public URL of agrosaarthi-model, e.g. https://agrosaarthi-model.onrender.com
+      - key: MODEL_SERVICE_TOKEN
+        fromService:
+          type: web
+          name: agrosaarthi-model
+          envVarKey: MODEL_SERVICE_TOKEN
+      - key: IMAGE_MODEL_PROVIDER
+        value: model-service
+      - key: MODEL_SERVICE_TIMEOUT_MS
+        value: "60000"                 # free instances cold-start slowly
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: DATA_ENCRYPTION_KEY
+        generateValue: true            # base64 256-bit
+      - key: DATA_HASH_KEY
+        generateValue: true
+      - key: SIGNED_URL_SECRET
+        generateValue: true
+      - key: TRUST_PROXY
+        value: "2"                     # Vercel proxy + Render load balancer
+      - key: TELEPHONY_SIMULATOR_ENABLED
+        value: "false"
+      - key: ALLOW_LOCAL_STORAGE_IN_PRODUCTION
+        value: "true"                  # free plan: uploaded photos live on ephemeral disk (lost on restart/redeploy)
