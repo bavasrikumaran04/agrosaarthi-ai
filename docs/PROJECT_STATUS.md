@@ -1,54 +1,48 @@
 # AgroSaarthi AI — Project Status
 
-> Single source of truth for "where are we". Updated after every phase.
-> Status vocabulary (from the specification):
-> **LOCAL-TESTED** = implemented and locally tested · **LIVE-VERIFIED** = integrated and tested with live external services ·
-> **DEPLOYED** = deployed and production-tested · **BLOCKED** = blocked by missing credentials/external dependencies ·
-> **NOT IMPLEMENTED**.
+> Status vocabulary: **LOCAL-TESTED** (implemented and locally tested) · **LIVE-VERIFIED** (tested with live external
+> services) · **DEPLOYED** · **BLOCKED** (missing credentials/external dependency) · **NOT IMPLEMENTED**.
 
-_Last updated: 2026-10-22 21:00 IST_
+_Last updated: 2026-10-23 ~10:55 IST_
 
-## Completed phases
+## Phase 1 — Web application: LOCAL-TESTED
 
-| Phase | Scope | Status | Evidence |
-|---|---|---|---|
-| 0 | Environment inspection, repository init, spec captured | Done | `docs/spec/MASTER_SPECIFICATION.md`, `docs/IMPLEMENTATION_LOG.md` |
-| 1 | Backend foundation: config validation + production guards, logging with redaction, error envelope, security middleware (helmet, CORS allowlist, rate limits, NoSQL-operator rejection, CSRF header for cookie endpoints, timeouts), MongoDB connection + readiness, full data model (27 collections), auth (argon2id, JWT access + rotating refresh cookie with reuse detection, lockout), audit service, language registry baseline, health probes | LOCAL-TESTED | `cd backend && npx vitest run` → 6 files, 76 tests passed (2026-10-22 20:57) ; `npx tsc --noEmit` clean ; `npx eslint .` clean |
+| Feature | Status | Notes |
+|---|---|---|
+| Angular app shell, routing, guards, typed i18n (Tamil default + English), API client, auth with in-memory token + refresh cookie | LOCAL-TESTED | Tamil dictionary is machine-assisted, pending native review |
+| Home, language choice, registration (consent), login, password change (forced for new staff) | LOCAL-TESTED | Browser E2E |
+| Farmer dashboard, crop & disease information pages (from DB) | LOCAL-TESTED | 25 crops, 38 model-mapped disease records seeded |
+| Crop photo upload with preview, progress, client + server validation, result display with uncertainty | LOCAL-TESTED | Server strips EXIF/GPS; prediction hidden for poor-quality/off-domain photos |
+| Ask a question (sent to an expert as a case) + browser speech input (Web Speech API) | LOCAL-TESTED (text); voice not automated-tested | AI assistant is NOT IMPLEMENTED yet (Phase 3); the page says so |
+| Requests list/detail, messages, expert-review request, callback request | LOCAL-TESTED | No callback time is promised |
+| Expert desk: counts, queues, triage view, take case (race-safe), assessment, status changes, messages, callback attempts, audited phone reveal, photo via signed URL | LOCAL-TESTED | |
+| Admin: metrics from real data, staff creation with one-time password, enable/disable users, provider status, audit log | LOCAL-TESTED | |
+| Storage: local + S3-compatible private storage, signed URLs, retention sweep | Local LOCAL-TESTED; S3 adapter unit-tested with mocks only (BLOCKED for live: no bucket) | |
+| Backend ↔ model service HTTP integration | LOCAL-TESTED with the labelled **test-fixture** ONNX model | No trained crop-disease model exists yet (Phase 4) — no genuine disease inference |
 
-## In progress
+## Verified results (2026-10-23)
 
-- Phase 2 research (provider/dataset verification) — **first attempt failed** (all 6 agents stopped by an account session limit / DNS error; no reports were saved). Being re-run with incremental saving.
+| Command | Result |
+|---|---|
+| `backend: npx vitest run` | 9 files, **119 passed** |
+| `backend: npx tsc --noEmit`, `npx eslint .`, `npm run build`, `npm audit --omit=dev` | all pass, 0 vulnerabilities |
+| `model-service: python -m pytest -q` | **28 passed** |
+| `frontend: npx ng test --watch=false` | 2 files, **15 passed** |
+| `frontend: npx ng build`, `npm audit --omit=dev` | pass, 0 vulnerabilities |
+| `e2e: npx playwright test` (live local stack: MongoDB 8.2.6 via dev:mongo, model service, API, ng serve, Chromium) | **6 passed** — Tamil default, crop pages, farmer register → photo → model-service result → callback, farmer denied admin area, admin creates expert, expert takes/assesses/resolves, farmer sees answer in Tamil |
 
-## Pending (next phases)
+## Not implemented yet
+Knowledge base & retrieval (Phase 2) · Gemini assistant (Phase 3) · trained crop-disease model + ML pipeline (Phase 4) ·
+server-side STT/TTS and telephony/simulator (Phase 5) · privacy-request workflow, OpenAPI docs, full documentation set.
 
-1. Research (telephony, speech, Gemini, datasets/models, hosting, Indian regulatory) → `docs/research/`.
-2. Feature modules: reference data (crops/diseases/languages), knowledge base + retrieval, storage + image analysis + model adapter, Python model service + ML pipeline, assistant (AI provider abstraction, Gemini adapter, safety policy), voice (STT/TTS), telephony (FSM, provider adapter, simulator), cases/experts/callbacks, admin/privacy/metrics, OpenAPI.
-3. Angular frontend (farmer app with Tamil i18n, expert dashboard, admin).
-4. E2E tests, CI pipeline, security checks, deployment configuration, documentation set.
-5. Deployment (requires credentials — see `docs/EXTERNAL_SETUP_CHECKLIST.md`).
-
-## Failed tests
-
-None currently.
-
-## Known bugs / risks
-
-- The pasted specification was truncated mid-Section 26; later sections are unknown (see `docs/DECISIONS.md` D-000).
-- Local Node.js is 20.20.2, which reached end-of-life in April 2026. Dependencies were pinned to versions that support Node ^20.19 and ^22/^24; deployment should use Node 22 or 24 LTS.
-
-## Missing credentials (none are configured on this machine)
-
-Gemini API key · MongoDB Atlas (or other managed MongoDB) URI · object storage (S3-compatible) · speech provider(s) · telephony provider account + Indian number · hosting accounts (frontend/backend/model service).
+## Missing credentials / external
+Gemini API key · managed MongoDB · S3 bucket · speech provider · telephony account + Indian number · hosting · legal review ·
+native Tamil review · expert review of knowledge content. Node 20 (EOL) locally — upgrade recommended.
 
 ## Deployment status
-
-NOT DEPLOYED.
-
-## Last verified revision
-
-See `git log -1` (foundation commit, 2026-10-22).
+NOT DEPLOYED. No remote repository; nothing pushed.
 
 ## Exact next actions
-
-1. Re-run research wave 1 (ml, gemini, speech, telephony) with agents that save reports incrementally.
-2. Implement research-independent modules (knowledge base, cases/experts/callbacks, reference data, storage/image pipeline core, assistant core, telephony FSM + simulator).
+1. Phase 2: knowledge base (ingestion, chunking, retrieval with Tamil query expansion) + sourced documents.
+2. Phase 3: Gemini assistant behind `AI_PROVIDER=gemini` (needs an API key for live verification).
+3. Phase 4: dataset download + CPU training + evaluation + ONNX export; replace the test-fixture model.

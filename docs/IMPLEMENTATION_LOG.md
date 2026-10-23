@@ -34,3 +34,23 @@ Chronological record of what was done, what was run, and what happened. Newest e
   - `npx tsc -p tsconfig.json --noEmit` → exit 0
   - `npx eslint .` → exit 0
   - `npx vitest run` → **6 test files, 76 tests passed** (unit + integration on an in-memory MongoDB 8.2.6 started by `mongodb-memory-server`)
+
+## 2026-10-23
+
+### Audit (≈10:00 IST)
+- `docs/FINAL_AUDIT_REPORT.md` written: foundation only; frontend was an empty scaffold.
+
+### Phase 1 — Web application (≈10:05–10:55 IST)
+- Kept and completed the interrupted agent's storage contracts: added local + S3 adapters, files service (retention sweep), signed-file route.
+- Backend modules added: reference data (seeded idempotently, admin edits preserved), cases/experts/callbacks
+  (state machine, triage view, race-safe assignment, assessments, messages, callbacks, audited phone reveal),
+  image analysis (content validation, EXIF/GPS strip, model-service adapter with timeout/retry, labelled simulator,
+  outcome rules, auto-escalation, duplicate-submission guard), admin (staff, metrics, providers, model versions, audit).
+- Scripts: `admin:create` (+ `--reset-password` recovery that revokes sessions), `db:seed`.
+- Angular app built: core (config, API client, auth, typed Tamil/English i18n), shell, public/farmer/expert/admin pages.
+- Honesty fix: `.env.example` defaulted AI/STT/TTS to "simulated" although no such code existed, so health reported
+  them as simulated — changed defaults to `none`.
+- E2E: Playwright journey against the running stack. Failures fixed were all in the test script (URL wait race,
+  hidden menu button, language preference applied on sign-in, ambiguous label); one run was correctly blocked by the
+  auth rate limiter (20/15 min) — backend restarted to clear the in-memory limiter.
+- Results: backend 119 passed; model-service 28 passed; frontend 15 passed; E2E 6 passed; builds/lint/typecheck/audits pass.
