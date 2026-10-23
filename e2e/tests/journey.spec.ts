@@ -86,8 +86,9 @@ test.describe.serial('AgroSaarthi user journey', () => {
     await page.getByRole('button', { name: 'Check the photo' }).click();
 
     await expect(page.getByRole('heading', { name: 'Result' })).toBeVisible({ timeout: 30_000 });
-    // The local stack runs the labelled TEST FIXTURE model through the real HTTP integration.
-    await expect(page.getByText(/Checked by: TEST FIXTURE/)).toBeVisible();
+    // Real HTTP round trip to the model service. The synthetic test photo is not a real leaf, so any honest
+    // outcome is acceptable here (the trained model usually calls it out-of-domain or uncertain).
+    await expect(page.getByText(/looks similar to this problem|not sure|does not look like a leaf|not clear enough|does not cover this crop/).first()).toBeVisible();
     const number = await page.getByText(/Request number:/).textContent();
     caseNumber = number!.replace(/.*Request number:\s*/, '').trim();
     expect(caseNumber).toMatch(/^AGS-\d{4}-\d{6}$/);

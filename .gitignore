@@ -71,3 +71,6 @@ desktop.ini
 
 # Local development MongoDB data (npm run dev:mongo)
 backend/.dev-mongo-data/
+
+# ML run logs
+ml/*.log

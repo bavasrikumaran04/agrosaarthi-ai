@@ -20,6 +20,15 @@ _Last updated: 2026-10-23 ~12:00 IST (presentation-ready UI pass)_
 | Storage: local + S3-compatible private storage, signed URLs, retention sweep | Local LOCAL-TESTED; S3 adapter unit-tested with mocks only (BLOCKED for live: no bucket) | |
 | Backend ↔ model service HTTP integration | LOCAL-TESTED with the labelled **test-fixture** ONNX model | No trained crop-disease model exists yet (Phase 4) — no genuine disease inference |
 
+## Phase 4 (first version) — trained crop-disease model: LOCAL-TESTED
+
+| Item | Status | Notes |
+|---|---|---|
+| `ml/train_head.py`: PlantVillage (leaf-grouped split) → frozen MobileNetV3 features → logistic-regression head, Mahalanobis OOD, thresholds from validation, ONNX export | LOCAL-TESTED | Leaf-leakage asserts; same preprocessing as inference |
+| Model `agrosaarthi-leaf-classifier 2026.10.23-pv38` | LOCAL-TESTED | 95.9 % top-1, macro-F1 0.959, top-3 99.5 % on 3,577 held-out lab photos; independent ONNX check 97.1 % (136 photos). **Field accuracy NOT measured.** |
+| Loaded by model service (`model-service/models/current`, git-ignored) and used through the full web stack | LOCAL-TESTED | Browser check: held-out late-blight photo → "Tomato — Late blight"; E2E 7/7 |
+| Fine-tuning, field-photo evaluation set, Tamil Nadu crops (rice, banana, coconut) | NOT IMPLEMENTED | |
+
 ## Presentation-ready prototype pass (2026-10-23, midday): LOCAL-TESTED
 
 | Feature | Status | Notes |

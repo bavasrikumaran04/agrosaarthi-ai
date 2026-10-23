@@ -59,7 +59,7 @@ export const en = {
     solutionLead: 'AgroSaarthi AI brings together photo-based disease detection, guidance in the farmer’s language, and human agricultural experts.',
     featPhotoTitle: 'Photo disease check',
     featPhoto: 'Upload a leaf photo. A machine-learning model suggests possible diseases and shows how sure it is. Unclear photos are rejected instead of guessed.',
-    featPhotoStatus: 'Upload, quality checks and model service work end to end. A trained disease model is still being prepared; the prototype uses a labelled test model.',
+    featPhotoStatus: 'Works end to end with a model trained on PlantVillage laboratory photos (38 classes, 14 crops). Accuracy on real field photos has not been measured yet.',
     featVoiceTitle: 'Ask in Tamil — type or speak',
     featVoice: 'Describe the problem in your own words, by typing or speaking. The question reaches an agricultural expert.',
     featVoiceStatus: 'Questions to experts and browser speech input work. Automatic AI answers (Gemini) are in development.',
@@ -98,7 +98,7 @@ export const en = {
   footer: {
     about: 'AI-powered crop disease detection and multilingual voice assistance for farmers. Academic prototype.',
     links: 'Footer links',
-    prototype: 'Prototype for demonstration. Suggestions are not a confirmed diagnosis. The disease model in this prototype is a test model, not a trained one.',
+    prototype: 'Prototype for demonstration. Suggestions are not a confirmed diagnosis. The disease model was trained on laboratory leaf photos; its accuracy on field photos has not been measured.',
   },
   phone: {
     eyebrow: 'For farmers without a smartphone',
@@ -244,6 +244,7 @@ export const en = {
     viewCase: 'Open this request',
     model: 'Checked by: {name} {version}',
     healthy: 'The leaf looks healthy.',
+    labModelNote: 'This model learned from laboratory photos of single leaves. It can be wrong on photos taken in the field — an agricultural expert should confirm before you act.',
     testModelNotice: 'PROTOTYPE: the photo was processed by the real model service, but the model loaded is a TEST model that only checks the system works. It does not recognise crop diseases yet — do not act on this result.',
   },
   ask: {

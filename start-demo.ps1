@@ -1,5 +1,5 @@
 # Starts the full local AgroSaarthi stack, each service in its own PowerShell window:
-#   MongoDB (local dev) -> model service (TEST FIXTURE model) -> backend API -> Angular web app.
+#   MongoDB (local dev) -> model service (trained model if present, else TEST FIXTURE) -> backend API -> Angular web app.
 # Usage (from the repository root):  powershell -ExecutionPolicy Bypass -File .\start-demo.ps1
 # Close the four windows to stop everything. Requires backend/.env (see docs/LOCAL_RUN.md).
 $ErrorActionPreference = 'Stop'
@@ -35,10 +35,16 @@ if (Test-Port 27017) { Write-Host '  MongoDB already running' } else {
 }
 if (Test-Port 8000) { Write-Host '  Model service already running' } else {
   $ms = Join-Path $root 'model-service'
-  if (-not (Test-Path (Join-Path $ms 'models\test-fixture\model_card.json'))) {
-    & (Join-Path $ms '.venv\Scripts\python.exe') (Join-Path $ms 'scripts\build_test_fixture.py') (Join-Path $ms 'models\test-fixture')
+  # Prefer the trained model (models/current, produced by ml/train_head.py); otherwise the labelled TEST FIXTURE.
+  $modelDir = 'models/current'
+  if (-not (Test-Path (Join-Path $ms 'models\current\model_card.json'))) {
+    Write-Warning 'No trained model in model-service\models\current - using the TEST FIXTURE model (results are not real).'
+    $modelDir = 'models/test-fixture'
+    if (-not (Test-Path (Join-Path $ms 'models\test-fixture\model_card.json'))) {
+      & (Join-Path $ms '.venv\Scripts\python.exe') (Join-Path $ms 'scripts\build_test_fixture.py') (Join-Path $ms 'models\test-fixture')
+    }
   }
-  Start-Window 'AgroSaarthi - model service' $ms "`$env:MODEL_SERVICE_TOKEN='$token'; `$env:MODEL_DIR='models/test-fixture'; `$env:PORT='8000'; `$env:HOST='127.0.0.1'; .\.venv\Scripts\python.exe -m app"
+  Start-Window 'AgroSaarthi - model service' $ms "`$env:MODEL_SERVICE_TOKEN='$token'; `$env:MODEL_DIR='$modelDir'; `$env:PORT='8000'; `$env:HOST='127.0.0.1'; .\.venv\Scripts\python.exe -m app"
   Wait-Port 8000 'Model service'
 }
 if (Test-Port 4000) { Write-Host '  Backend API already running' } else {

@@ -67,3 +67,15 @@ Chronological record of what was done, what was run, and what happened. Newest e
   `start-demo.ps1` missed ng serve because it listens on `::1` only; repeated E2E runs hit the auth rate limiter (correct
   behaviour) — local `backend/.env` now sets `AUTH_RATE_LIMIT_MAX=100` for demos (production default unchanged: 20).
 - Results: backend 119 passed, tsc + eslint clean; frontend 16 passed, build OK (~103 kB initial transfer); E2E 7 passed.
+
+### Phase 4 first model (≈12:05–12:40 IST)
+- Trigger: user's screenshot of a real tomato leaf giving "Fixture green 97%" (test model).
+- Data: `geraldmc/plantvillage-full` parquet (855 MB, leaf-grouped split). Considered and rejected for now: a third-party
+  PlantVillage model with licence "other" and self-reported metrics on a leaky split.
+- Problems: C: drive had 0.38 GB free → torch install failed; fixed by putting uv cache/TMP/HF cache on D:
+  (`ml/cache`, git-ignored). Low free RAM (≈2 GB) → access-violation crashes in conv after large Arrow reads; fixed with
+  row-wise `take` + releasing the Arrow pool, batch 32, and resumable feature checkpoints.
+- Run `2026.10.23-pv38` (300 train / 100 test per class): 95.9 % top-1, macro-F1 0.959 (3,577 test photos);
+  thresholds minConfidence 0.50 / minMargin 0.15 and OOD threshold from validation. Demo images exported from the held-out test split.
+- Model installed in `model-service/models/current`; `start-demo.ps1` now prefers it; E2E assertion no longer expects the
+  test fixture. Result page shows a lab-photo caution for the real model.

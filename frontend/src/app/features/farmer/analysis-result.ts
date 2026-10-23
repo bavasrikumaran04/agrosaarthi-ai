@@ -30,6 +30,7 @@ import { Icon } from '../../shared/icon';
           <p class="small" [id]="'p-' + a.id">{{ 'result.sureness' | t: { percent: pct(top.score) } }}</p>
           <div class="meter" role="meter" aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="pct(top.score)" [attr.aria-labelledby]="'p-' + a.id"><span [style.width.%]="pct(top.score)"></span></div>
           <p class="small muted">{{ 'result.surenessNote' | t }}</p>
+          @if (!a.simulated && !isTestModel()) {<p class="small lab-note">{{ 'result.labModelNote' | t }}</p>}
           @if (a.predictions.length > 1) {
             <h4>{{ 'result.otherPossibilities' | t }}</h4>
             <ul class="others">
@@ -66,7 +67,7 @@ import { Icon } from '../../shared/icon';
       </div>
     </section>
   `,
-  styles: `.big{font-size:1.4rem;font-weight:750;margin:0;color:var(--c-primary-deep)}.top-card h3{margin:0}.outcome{display:flex;gap:.5rem;align-items:center}.others{list-style:none;padding:0;display:grid;gap:.6rem}.others li{display:grid;grid-template-columns:1fr auto;gap:.25rem .75rem}.others .meter{grid-column:1/-1;display:block}.meter.thin{height:6px}.meter.thin span{background:var(--c-border-strong)}.model{display:flex;gap:.4rem;align-items:center;margin-top:var(--space-3)}`,
+  styles: `.big{font-size:1.4rem;font-weight:750;margin:0;color:var(--c-primary-deep)}.top-card h3{margin:0}.outcome{display:flex;gap:.5rem;align-items:center}.others{list-style:none;padding:0;display:grid;gap:.6rem}.others li{display:grid;grid-template-columns:1fr auto;gap:.25rem .75rem}.others .meter{grid-column:1/-1;display:block}.meter.thin{height:6px}.meter.thin span{background:var(--c-border-strong)}.lab-note{background:var(--c-warn-bg);color:var(--c-warn);border-radius:8px;padding:.4rem .7rem}.model{display:flex;gap:.4rem;align-items:center;margin-top:var(--space-3)}`,
 })
 export class AnalysisResultComponent {
   readonly analysis = input.required<Analysis>();
