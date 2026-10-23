@@ -19,9 +19,9 @@ coverage/
 # --- Runtime data: farmer uploads, generated audio, call recordings ---
 backend/storage/
 backend/uploads/
-storage/
-uploads/
-recordings/
+/storage/
+/uploads/
+/recordings/
 *.wav
 *.mp3
 *.ogg
